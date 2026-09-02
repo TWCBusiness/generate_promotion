@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title> RPA-system . Generate promotion lotus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    /* Luxury Modern Palette */
+    --bg: #F8F9FA;
+    --surface: #FFFFFF;
+    --surface-soft: #FDF4F7;
+    --primary: #C2185B;
+    --primary-dark: #880E4F;
+    --primary-soft: #FCE4EC;
+    --accent: #E91E63;
+    --text: #212121;
+    --text-muted: #757575;
+    --border: #E0E0E0;
+    --success: #2E7D32;
+    --success-bg: #E8F5E9;
+    --danger: #C62828;
+    --danger-bg: #FFEBEE;
+    --radius-lg: 16px;
+    --radius-md: 8px;
+    --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ---------- Login Section ---------- */
+  #loginApp {
+    display: flex;
+    width: 100%;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .login-card {
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+  }
+  .login-logo {
+    width: 100px; height: 64px; border-radius: 12px;
+    background: linear-gradient(135deg, #4A0024 0%, #880E4F 50%, #C2185B 100%);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700; font-size: 24px; letter-spacing: .02em;
+    margin: 0 auto 20px;
+    box-shadow: 0 4px 12px rgba(194, 24, 91, 0.25);
+  }
+  .login-title {
+    font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 8px;
+  }
+  .login-sub {
+    font-size: 14px; color: var(--text-muted); font-weight: 300; margin-bottom: 32px;
+  }
+  .login-field {
+    text-align: left;
+    margin-bottom: 16px;
+  }
+  .login-field label {
+    display: block; font-size: 13px; font-weight: 500;
+    color: var(--text-muted); margin-bottom: 8px;
+  }
+  .login-field input {
+    display: block; width: 100%;
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 14px; color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    transition: all .2s;
+  }
+  .login-field input:focus {
+    outline: none; background: var(--surface); border-color: var(--primary);
+    box-shadow: 0 0 0 4px var(--primary-soft);
+  }
+  .login-error {
+    color: var(--danger); background: var(--danger-bg);
+    font-size: 13px; padding: 10px; border-radius: var(--radius-md);
+    margin-bottom: 16px; display: none; font-weight: 500;
+  }
+
+  /* ---------- Main App Wrapper ---------- */
+  #mainApp {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ---------- Top bar (Luxury Gradient) ---------- */
+  .topbar {
+    width: 100%;
+    background: linear-gradient(135deg, #4A0024 0%, #880E4F 50%, #C2185B 100%);
+    color: #fff;
+    padding: 24px 24px;
+    display: flex;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(194, 24, 91, 0.2);
+  }
+  .topbar-inner {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .logo-badge {
+    width: 46px; height: 46px; border-radius: 10px;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700; font-size: 14px; letter-spacing: .02em;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-sm);
+  }
+  .topbar h1 { font-size: 18px; font-weight: 600; line-height: 1.2; letter-spacing: 0.3px; }
+  .topbar .sub { font-size: 13px; color: rgba(255,255,255,.8); margin-top: 4px; font-weight: 300; }
+  .topbar-badge {
+    margin-left: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; font-weight: 600; letter-spacing: .1em;
+    color: rgba(255,255,255,.9);
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,.15);
+    padding: 6px 12px; border-radius: 999px;
+    white-space: nowrap;
+  }
+  .logout-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: all 0.2s;
+  }
+  .logout-btn:hover { background: rgba(255,255,255,0.2); }
+
+  /* ---------- Shell / layout ---------- */
+  .shell { width: 100%; max-width: 720px; padding: 32px 20px 60px; }
+
+  /* ---------- Tabs (Modern Segmented Control) ---------- */
+  .tabs {
+    display: flex; gap: 8px;
+    background: #EAEBEE;
+    padding: 6px;
+    border-radius: 12px;
+    margin-bottom: 28px;
+  }
+  .tab-btn {
+    flex: 1; border: none; background: transparent;
+    padding: 12px 16px; border-radius: 8px;
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    color: var(--text-muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: all .2s ease;
+  }
+  .tab-btn .tab-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(0,0,0,0.06); color: var(--text-muted);
+    font-size: 11px; font-weight: 600;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    flex-shrink: 0;
+    transition: all .2s ease;
+  }
+  .tab-btn.active { background: var(--surface); color: var(--primary-dark); box-shadow: var(--shadow-sm); }
+  .tab-btn.active .tab-num { background: var(--primary-soft); color: var(--primary-dark); }
+  .tab-btn:hover:not(.active) { color: var(--text); background: rgba(255,255,255,0.5); }
+
+  /* ---------- Card ---------- */
+  .card {
+    background: var(--surface);
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: 36px;
+  }
+  .card-head { margin-bottom: 24px; }
+  .card-title { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; color: var(--text); }
+  .card-title svg { flex-shrink: 0; color: var(--primary); }
+  .card-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-top: 8px; font-weight: 300; }
+
+  /* ---------- Dropzone ---------- */
+  .dropzone {
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg);
+    padding: 40px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s ease;
+  }
+  .dropzone:hover, .dropzone.dragover { border-color: var(--primary); background: var(--primary-soft); }
+  .dropzone:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  .dz-icon {
+    width: 48px; height: 48px; margin: 0 auto 16px;
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--shadow-sm);
+  }
+  .dz-title { font-weight: 500; font-size: 15px; color: var(--text); }
+  .dz-sub { color: var(--text-muted); font-size: 13px; margin-top: 6px; font-weight: 300; }
+  input[type="file"] { display: none; }
+
+  .file-chip {
+    display: none;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--primary-soft);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-top: 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .file-chip.show { display: flex; }
+  .file-chip-icon {
+    width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+    background: var(--primary-soft); color: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .file-name {
+    font-weight: 500; font-size: 14px; flex: 1;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .file-size { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
+  .file-remove {
+    border: none; background: var(--bg); color: var(--text-muted);
+    cursor: pointer; line-height: 1; padding: 8px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all .2s;
+  }
+  .file-remove:hover { color: var(--danger); background: var(--danger-bg); }
+
+  /* ---------- Form fields (Clean look) ---------- */
+  .date-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+  .date-field label {
+    display: block; font-size: 13px; font-weight: 500;
+    color: var(--text-muted); margin-bottom: 8px;
+  }
+  .date-field input[type="date"],
+  .date-field select,
+  .date-field input[type="number"] {
+    display: block; width: 100%;
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 14px; color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    transition: all .2s;
+  }
+  .date-field input[type="date"] { font-family: 'IBM Plex Mono', monospace; }
+  .date-field input:focus, .date-field select:focus {
+    outline: none; background: var(--surface); border-color: var(--primary);
+    box-shadow: 0 0 0 4px var(--primary-soft);
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; border: none; border-radius: var(--radius-md);
+    padding: 14px 24px;
+    font-family: inherit; font-size: 15px; font-weight: 600; letter-spacing: 0.3px;
+    cursor: pointer; margin-top: 24px;
+    transition: all .2s;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(194, 24, 91, 0.25); }
+  .btn-primary:hover:not(:disabled) { background: var(--primary-dark); box-shadow: 0 6px 16px rgba(194, 24, 91, 0.35); }
+  .btn-success { background: var(--text); color: #fff; text-decoration: none; }
+  .btn-success:hover { background: #000; }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); margin-top: 12px; }
+  .btn-ghost:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-soft); }
+
+  /* ---------- Pipeline / stepper ---------- */
+  .pipeline { display: none; margin-top: 32px; padding-top: 28px; border-top: 1px solid var(--border); }
+  .pipeline.show { display: block; }
+  .steps { display: flex; align-items: flex-start; }
+  .step { flex: 1; text-align: center; position: relative; }
+  .step::before {
+    content: ''; position: absolute; top: 14px; left: -50%;
+    width: 100%; height: 2px; background: var(--border);
+  }
+  .step:first-child::before { display: none; }
+  .step.done::before, .step.active::before { background: var(--primary); }
+  .dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--border);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600;
+    color: var(--text-muted); position: relative; z-index: 1;
+    transition: all .3s;
+  }
+  .step.active .dot { border-color: var(--primary); color: var(--primary); animation: pulse 1.5s ease-out infinite; }
+  .step.done .dot { background: var(--primary); border-color: var(--primary); color: #fff; }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(194, 24, 91, 0.4); }
+    100% { box-shadow: 0 0 0 10px rgba(194, 24, 91, 0); }
+  }
+  @media (prefers-reduced-motion: reduce) { .step.active .dot { animation: none; } }
+  .step-label { display: block; margin-top: 10px; font-size: 13px; color: var(--text-muted); font-weight: 400; }
+  .step.active .step-label { color: var(--primary-dark); font-weight: 600; }
+  .step.done .step-label { color: var(--text); font-weight: 500; }
+
+  /* ---------- Status ---------- */
+  .status {
+    display: none; margin-top: 24px; border-radius: var(--radius-md);
+    padding: 16px; font-size: 14px; line-height: 1.6;
+    white-space: pre-wrap; font-weight: 500;
+    border: 1px solid transparent;
+  }
+  .status.show { display: block; }
+  .status.info    { background: var(--primary-soft); color: var(--primary-dark); border-color: rgba(194, 24, 91, 0.1); }
+  .status.success { background: var(--success-bg); color: var(--success); border-color: rgba(46, 125, 50, 0.15); }
+  .status.error   { background: var(--danger-bg); color: var(--danger); border-color: rgba(198, 40, 40, 0.15); }
+
+  /* ---------- Preview ---------- */
+  .preview { display: none; margin-top: 24px; border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; background: var(--surface); }
+  .preview.show { display: block; }
+  .preview-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px; background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    font-size: 13px; font-weight: 600; color: var(--text);
+  }
+  .preview-count { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 400; color: var(--text-muted); }
+  .preview-scroll { overflow: auto; max-height: 320px; }
+  .preview table { border-collapse: collapse; font-size: 13px; white-space: nowrap; min-width: 100%; }
+  .preview th, .preview td { border-bottom: 1px solid var(--border); padding: 10px 14px; text-align: left; }
+  .preview th {
+    position: sticky; top: 0; background: var(--surface);
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--border);
+  }
+  .preview td { color: var(--text); font-weight: 300; }
+  .preview tr:hover td { background: var(--bg); }
+
+  .footer-note { text-align: center; color: var(--text-muted); font-size: 13px; margin-top: 24px; font-weight: 300; }
+
+  @media (max-width: 480px) {
+    .card { padding: 24px 20px; }
+    .tab-btn span.tab-text { display: none; }
+    .tab-btn { gap: 0; }
+    .topbar { padding: 20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ================= หน้า Login ================= -->
+  <div id="loginApp">
+    <div class="card login-card">
+      <div class="login-logo">WACOAL</div>
+      <div class="login-title">เข้าสู่ระบบ</div>
+      <div class="login-sub">RPA-system . Generate promotion lotus</div>
+      
+      <div id="loginError" class="login-error">Username หรือ Password ไม่ถูกต้อง</div>
+
+      <div class="login-field">
+        <label for="inpUser">ชื่อผู้ใช้งาน (Username)</label>
+        <input type="text" id="inpUser" placeholder="กรอกชื่อผู้ใช้งาน">
+      </div>
+      <div class="login-field">
+        <label for="inpPass">รหัสผ่าน (Password)</label>
+        <input type="password" id="inpPass" placeholder="กรอกรหัสผ่าน">
+      </div>
+
+      <button class="btn btn-primary" id="btnLogin">
+        เข้าสู่ระบบ
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 4px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= หน้าหลักของระบบ (Main App) ================= -->
+  <div id="mainApp">
+    <div class="topbar">
+      <div class="topbar-inner">
+        <div class="logo-badge">W</div>
+        <div>
+          <h1>Generate promotion lotus</h1>
+          <div class="sub">TBNA Promotion · Wacoal</div>
+        </div>
+        <span class="topbar-badge">RPA-system</span>
+        <button id="btnLogout" class="logout-btn" title="ออกจากระบบ">Logout</button>
+      </div>
+    </div>
+
+    <div class="shell">
+
+      <div class="tabs" role="tablist">
+        <button class="tab-btn active" id="tabBtnGenerate" role="tab" aria-selected="true">
+          <span class="tab-num">1</span><span class="tab-text">สร้างไฟล์ Promotion</span>
+        </button>
+        <button class="tab-btn" id="tabBtnConfirm" role="tab" aria-selected="false">
+          <span class="tab-num">2</span><span class="tab-text">Recheck File Confirm</span>
+        </button>
+      </div>
+
+      <!-- TAB 1: สร้างไฟล์ Promotion -->
+      <section id="panelGenerate">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              สร้างไฟล์ Promotion
+            </div>
+            <div class="card-desc">อัปโหลดไฟล์รายการโปรโมชัน กำหนดวันที่และประเภทส่วนลด ระบบจะประมวลผลและสร้างไฟล์เทมเพลตให้อัตโนมัติ</div>
+          </div>
+
+          <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="เลือกไฟล์หรือลากไฟล์มาวาง">
+            <div class="dz-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <div class="dz-title">ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์</div>
+            <div class="dz-sub">ขนาดไฟล์สูงสุด 50 MB</div>
+          </div>
+          <input type="file" id="fileInput">
+
+          <div class="file-chip" id="fileChip">
+            <span class="file-chip-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </span>
+            <span class="file-name" id="fileName"></span>
+            <span class="file-size" id="fileSize"></span>
+            <button class="file-remove" id="fileRemove" title="ลบไฟล์" aria-label="ลบไฟล์">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+
+          <div class="date-row">
+            <div class="date-field">
+              <label for="dateStart">วันที่เริ่มโปรโมชัน</label>
+              <input type="date" id="dateStart">
+            </div>
+            <div class="date-field">
+              <label for="dateEnd">วันที่สิ้นสุดโปรโมชัน</label>
+              <input type="date" id="dateEnd">
+            </div>
+          </div>
+
+          <div class="date-row">
+            <div class="date-field">
+              <label for="promoType">ประเภทโปรโมชัน</label>
+              <select id="promoType">
+                <option value="ONEPRICE">ONEPRICE</option>
+                <option value="PERCENT">ส่วนลด (%)</option>
+              </select>
+            </div>
+            <div class="date-field" id="percentField" style="display:none">
+              <label for="discountPercent">เปอร์เซ็นต์ส่วนลด (%)</label>
+              <input type="number" id="discountPercent" min="0.01" max="100" step="0.01" placeholder="เช่น 20">
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="uploadBtn" disabled>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            เริ่มประมวลผล
+          </button>
+
+          <div class="pipeline" id="pipeline">
+            <div class="steps">
+              <div class="step" id="step1"><span class="dot">1</span><span class="step-label">อัปโหลดไฟล์</span></div>
+              <div class="step" id="step2"><span class="dot">2</span><span class="step-label">ระบบประมวลผล</span></div>
+              <div class="step" id="step3"><span class="dot">3</span><span class="step-label">พร้อมใช้งาน</span></div>
+            </div>
+          </div>
+
+          <div class="status" id="status" role="status" aria-live="polite"></div>
+
+          <div class="preview" id="preview">
+            <div class="preview-head">
+              <span>ตัวอย่างไฟล์ผลลัพธ์ (Sheet: Data)</span>
+              <span class="preview-count" id="previewCount"></span>
+            </div>
+            <div class="preview-scroll" id="previewScroll"></div>
+          </div>
+
+          <a class="btn btn-success" id="downloadBtn" style="display:none" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            ดาวน์โหลดไฟล์ Excel
+          </a>
+          <button class="btn btn-ghost" id="resetBtn" style="display:none">อัปโหลดไฟล์ใหม่</button>
+        </div>
+      </section>
+
+      <!-- TAB 2: ประมวลผลไฟล์ Confirm -->
+      <section id="panelConfirm" style="display:none">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              ประมวลผลไฟล์ Confirm จากห้าง
+            </div>
+            <div class="card-desc">อัปโหลดไฟล์ Confirm ที่ห้างส่งกลับมา (ไฟล์เดียวกับที่สร้างในแท็บที่ 1 แต่ห้างตัดรายการที่ไม่อนุมัติออกแล้ว) ระบบจะเทียบกับฐานข้อมูลและสร้างไฟล์รหัสสินค้าจัดรายการให้อัตโนมัติ</div>
+          </div>
+
+          <div class="dropzone" id="dropzone2" tabindex="0" role="button" aria-label="เลือกไฟล์ Confirm หรือลากไฟล์มาวาง">
+            <div class="dz-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <div class="dz-title">ลากไฟล์ Confirm มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์</div>
+            <div class="dz-sub">ขนาดไฟล์สูงสุด 50 MB</div>
+          </div>
+          <input type="file" id="fileInput2">
+
+          <div class="file-chip" id="fileChip2">
+            <span class="file-chip-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </span>
+            <span class="file-name" id="fileName2"></span>
+            <span class="file-size" id="fileSize2"></span>
+            <button class="file-remove" id="fileRemove2" title="ลบไฟล์" aria-label="ลบไฟล์">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+
+          <button class="btn btn-primary" id="uploadBtn2" disabled>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            เริ่มประมวลผล
+          </button>
+
+          <div class="pipeline" id="pipeline2">
+            <div class="steps">
+              <div class="step" id="step1_2"><span class="dot">1</span><span class="step-label">อัปโหลดไฟล์</span></div>
+              <div class="step" id="step2_2"><span class="dot">2</span><span class="step-label">ระบบประมวลผล</span></div>
+              <div class="step" id="step3_2"><span class="dot">3</span><span class="step-label">พร้อมใช้งาน</span></div>
+            </div>
+          </div>
+
+          <div class="status" id="status2" role="status" aria-live="polite"></div>
+
+          <div class="preview" id="preview2">
+            <div class="preview-head">
+              <span>ตัวอย่างไฟล์ผลลัพธ์ (รหัสสินค้าจัดรายการ)</span>
+              <span class="preview-count" id="previewCount2"></span>
+            </div>
+            <div class="preview-scroll" id="previewScroll2"></div>
+          </div>
+
+          <a class="btn btn-success" id="downloadBtn2" style="display:none" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            ดาวน์โหลดไฟล์ Excel
+          </a>
+          <button class="btn btn-ghost" id="resetBtn2" style="display:none">อัปโหลดไฟล์ใหม่</button>
+        </div>
+      </section>
+
+      <p class="footer-note">ระบบประมวลผลอัตโนมัติผ่าน RPA & Power Automate · ผลลัพธ์ส่งออกเป็น .xlsx</p>
+    </div>
+  </div>
+
+<script>
+/* ============================================================
+   ตั้งค่า Username / Password ที่นี่
+   ============================================================ */
+const APP_CONFIG = {
+  username: "admin",      // เปลี่ยนชื่อผู้ใช้ที่นี่
+  password: "password"    // เปลี่ยนรหัสผ่านที่นี่
+};
+
+/* ============================================================
+   Logic สำหรับระบบ Login
+   ============================================================ */
+const loginApp = document.getElementById('loginApp');
+const mainApp = document.getElementById('mainApp');
+const inpUser = document.getElementById('inpUser');
+const inpPass = document.getElementById('inpPass');
+const btnLogin = document.getElementById('btnLogin');
+const loginError = document.getElementById('loginError');
+const btnLogout = document.getElementById('btnLogout');
+
+function handleLogin() {
+  const user = inpUser.value.trim();
+  const pass = inpPass.value.trim();
+
+  if (user === APP_CONFIG.username && pass === APP_CONFIG.password) {
+    // ล็อกอินสำเร็จ
+    loginError.style.display = 'none';
+    loginApp.style.display = 'none';
+    mainApp.style.display = 'flex'; // แสดงหน้าหลัก
+    inpUser.value = '';
+    inpPass.value = '';
+  } else {
+    // ล็อกอินไม่สำเร็จ
+    loginError.style.display = 'block';
+  }
+}
+
+btnLogin.addEventListener('click', handleLogin);
+inpPass.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') handleLogin();
+});
+inpUser.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') handleLogin();
+});
+
+btnLogout.addEventListener('click', () => {
+  mainApp.style.display = 'none';
+  loginApp.style.display = 'flex';
+});
+
+/* ============================================================
+   ส่วนของ JavaScript (Logic และ API Integration) ทั้งหมดถูกคงไว้
+   เหมือนต้นฉบับทุกประการ
+   ============================================================ */
+const SUBMIT_URL = "https://default4350f91177f640d9b8ac4c608b48b2.25.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/01/workflows/f26337ed0e8b465f92cc262c6ffc8b45/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=GawKkatx-etzy6EkMYwt35xH-6DeqFefW84_49WFapw";
+const STATUS_URL = "https://default4350f91177f640d9b8ac4c608b48b2.25.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/28/workflows/40eb4822337f4ef8bd8cd399d6f3f64b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=AnDKK3xcjzV6NOxMQCF3AKGr09kxsoGibT5_XWVjKkM";
+
+const MAX_FILE_MB   = 50;
+const POLL_INTERVAL = 10000;
+const POLL_TIMEOUT  = 30 * 60 * 1000;
+
+const SUBMIT_URL_CONFIRM = "https://default4350f91177f640d9b8ac4c608b48b2.25.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/27/workflows/a42b4b12f43347eebd0df5db2985e9b4/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=dlDDC5eSIHtSo-gPNmlUGwTGcd_kygfIQujLoVGO6LU";
+const STATUS_URL_CONFIRM = "https://default4350f91177f640d9b8ac4c608b48b2.25.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/04/workflows/be2f8b9964a64b58a03a3b953b8f247a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=uADcPaFfw6oo2cFY0DHckKFG1a7mZBfJdNPP9T5I3ZM";
+
+const dropzone   = document.getElementById('dropzone');
+const fileInput  = document.getElementById('fileInput');
+const fileChip   = document.getElementById('fileChip');
+const fileNameEl = document.getElementById('fileName');
+const fileSizeEl = document.getElementById('fileSize');
+const fileRemove = document.getElementById('fileRemove');
+const dateStart  = document.getElementById('dateStart');
+const dateEnd    = document.getElementById('dateEnd');
+const promoType       = document.getElementById('promoType');
+const percentField    = document.getElementById('percentField');
+const discountPercent = document.getElementById('discountPercent');
+const uploadBtn  = document.getElementById('uploadBtn');
+const pipeline   = document.getElementById('pipeline');
+const statusEl   = document.getElementById('status');
+const downloadBtn= document.getElementById('downloadBtn');
+const resetBtn   = document.getElementById('resetBtn');
+const steps = [
+  document.getElementById('step1'),
+  document.getElementById('step2'),
+  document.getElementById('step3')
+];
+
+let selectedFile = null;
+let pollTimer = null;
+let startTime = null;
+
+dropzone.addEventListener('click', () => fileInput.click());
+dropzone.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+});
+fileInput.addEventListener('change', () => {
+  if (fileInput.files.length) setFile(fileInput.files[0]);
+});
+['dragover', 'dragenter'].forEach(ev =>
+  dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.add('dragover'); })
+);
+['dragleave', 'drop'].forEach(ev =>
+  dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.remove('dragover'); })
+);
+dropzone.addEventListener('drop', e => {
+  if (e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]);
+});
+
+promoType.addEventListener('change', () => {
+  const isPercent = promoType.value === 'PERCENT';
+  percentField.style.display = isPercent ? 'block' : 'none';
+  if (!isPercent) discountPercent.value = '';
+});
+
+function setFile(file) {
+  if (file.size > MAX_FILE_MB * 1024 * 1024) {
+    showStatus('error', `ไฟล์มีขนาดเกิน ${MAX_FILE_MB} MB กรุณาเลือกไฟล์ที่เล็กกว่านี้`);
+    return;
+  }
+  selectedFile = file;
+  fileNameEl.textContent = file.name;
+  fileSizeEl.textContent = formatSize(file.size);
+  fileChip.classList.add('show');
+  uploadBtn.disabled = false;
+  hideStatus();
+}
+
+fileRemove.addEventListener('click', clearFile);
+
+function clearFile() {
+  selectedFile = null;
+  fileInput.value = '';
+  fileChip.classList.remove('show');
+  uploadBtn.disabled = true;
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+}
+
+function elapsedText(start) {
+  const sec = Math.floor((Date.now() - start) / 1000);
+  const m = Math.floor(sec / 60), s = sec % 60;
+  return m > 0 ? `${m} นาที ${s} วินาที` : `${s} วินาที`;
+}
+
+uploadBtn.addEventListener('click', async () => {
+  if (!selectedFile) return;
+
+  if (!dateStart.value || !dateEnd.value) {
+    showStatus('error', 'กรุณาเลือกวันที่เริ่มและวันที่สิ้นสุดโปรโมชันให้ครบ');
+    return;
+  }
+  if (dateEnd.value < dateStart.value) {
+    showStatus('error', 'วันที่สิ้นสุดต้องไม่ก่อนวันที่เริ่มโปรโมชัน');
+    return;
+  }
+
+  let discountPercentValue = 0;
+  if (promoType.value === 'PERCENT') {
+    const pct = parseFloat(discountPercent.value);
+    if (discountPercent.value === '' || isNaN(pct) || pct <= 0 || pct > 100) {
+      showStatus('error', 'กรุณากรอกเปอร์เซ็นต์ส่วนลดให้ถูกต้อง (มากกว่า 0 ถึง 100)');
+      return;
+    }
+    discountPercentValue = pct;
+  }
+
+  uploadBtn.disabled = true;
+  dropzone.style.pointerEvents = 'none';
+  dateStart.disabled = true;
+  dateEnd.disabled = true;
+  promoType.disabled = true;
+  discountPercent.disabled = true;
+  pipeline.classList.add('show');
+  setStep(0);
+  startTime = Date.now();
+  showStatus('info', 'กำลังอัปโหลดไฟล์เข้าระบบ...');
+
+  try {
+    const base64 = await toBase64(selectedFile);
+
+    const res = await fetch(SUBMIT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fileName: selectedFile.name,
+        fileContent: base64,
+        dateStart: dateStart.value,
+        dateEnd: dateEnd.value,
+        promotionType: promoType.value,
+        discountPercent: discountPercentValue
+      })
+    });
+
+    if (!res.ok && res.status !== 202) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    if (data.status === 'success' && (data.downloadUrl || data.fileBase64)) {
+      onSuccess(data);
+      return;
+    }
+
+    if (!data.jobId) throw new Error('ระบบไม่ได้ส่งรหัสงาน (jobId) กลับมา');
+
+    setStep(1);
+    showStatus('info', 'ระบบรับไฟล์แล้ว กำลังประมวลผล... (0 วินาที)');
+    startPolling(data.jobId);
+
+  } catch (err) {
+    console.error(err);
+    onError('ส่งไฟล์ไม่สำเร็จ: ' + err.message);
+  }
+});
+
+function startPolling(jobId) {
+  pollTimer = setInterval(async () => {
+    if (Date.now() - startTime > POLL_TIMEOUT) {
+      stopPolling();
+      onError('งานใช้เวลานานเกิน 30 นาที กรุณาติดต่อผู้ดูแลระบบ');
+      return;
+    }
+    try {
+      const res = await fetch(STATUS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobId: jobId })
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+
+      if (data.status === 'success' && (data.downloadUrl || data.fileBase64)) {
+        stopPolling();
+        onSuccess(data);
+      } else if (data.status === 'error') {
+        stopPolling();
+        onError('ประมวลผลไม่สำเร็จ: ' + (data.message || 'ไม่ทราบสาเหตุ'));
+      } else {
+        showStatus('info', `ระบบกำลังประมวลผล... (${elapsedText(startTime)})`);
+      }
+    } catch (e) {
+      console.warn('poll failed, will retry', e);
+    }
+  }, POLL_INTERVAL);
+}
+
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+const previewBox    = document.getElementById('preview');
+const previewScroll = document.getElementById('previewScroll');
+const previewCount  = document.getElementById('previewCount');
+let blobUrl = null;
+
+function onSuccess(data) {
+  setStep(2, true);
+  showStatus('success', `ประมวลผลเสร็จสิ้น (ใช้เวลา ${elapsedText(startTime)}) ไฟล์ผลลัพธ์พร้อมดาวน์โหลดแล้ว`);
+
+  const fname = data.outputFileName || 'result.xlsx';
+
+  if (data.fileBase64) {
+    try { renderPreview(data.fileBase64); }
+    catch (e) { console.warn('แสดง preview ไม่สำเร็จ:', e); }
+
+    try {
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
+      blobUrl = URL.createObjectURL(b64ToBlob(data.fileBase64));
+      downloadBtn.href = blobUrl;
+      downloadBtn.download = fname;
+      downloadBtn.removeAttribute('target');
+    } catch (e) {
+      console.warn('สร้าง blob ไม่สำเร็จ ใช้ลิงก์ SharePoint แทน:', e);
+      if (data.downloadUrl) downloadBtn.href = data.downloadUrl;
+    }
+  } else if (data.downloadUrl) {
+    downloadBtn.href = data.downloadUrl;
+  }
+
+  downloadBtn.style.display = 'inline-flex';
+  resetBtn.style.display = 'inline-flex';
+  uploadBtn.style.display = 'none';
+}
+
+function b64ToBlob(base64) {
+  const bin = atob(base64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+}
+
+const PREVIEW_MAX_ROWS = 10;
+const PREVIEW_MAX_COLS = 40;
+
+function renderPreview(base64) {
+  const wb = XLSX.read(base64, { type: 'base64' });
+  const sheetName = wb.SheetNames.find(n => n.trim().toLowerCase() === 'data') || wb.SheetNames[0];
+  const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: '' });
+  if (!rows.length) return;
+
+  const headerRow = rows[0] || [];
+  const dataRows = rows.slice(2).filter(r => r.some(v => String(v).trim() !== ''));
+  const shownRows = dataRows.slice(0, PREVIEW_MAX_ROWS);
+
+  const colCount = Math.max(headerRow.length, ...shownRows.map(r => r.length));
+  const usedCols = [];
+  for (let c = 0; c < colCount && usedCols.length < PREVIEW_MAX_COLS; c++) {
+    if (shownRows.some(r => String(r[c] ?? '').trim() !== '')) usedCols.push(c);
+  }
+
+  const colLetter = i => {
+    let s = '';
+    i++;
+    while (i > 0) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); }
+    return s;
+  };
+  const esc = v => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  let html = '<table><thead><tr>';
+  usedCols.forEach(c => {
+    const label = String(headerRow[c] ?? '').trim();
+    html += `<th>${colLetter(c)}${label ? ' · ' + esc(label) : ''}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+  shownRows.forEach(r => {
+    html += '<tr>';
+    usedCols.forEach(c => { html += `<td>${esc(r[c])}</td>`; });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+
+  previewScroll.innerHTML = html;
+  previewCount.textContent = dataRows.length > PREVIEW_MAX_ROWS
+    ? `แสดง ${PREVIEW_MAX_ROWS} จาก ${dataRows.length} แถว`
+    : `${dataRows.length} แถว`;
+  previewBox.classList.add('show');
+}
+
+function onError(msg) {
+  showStatus('error', msg + ' — กดอัปโหลดไฟล์ใหม่เพื่อลองอีกครั้ง');
+  resetBtn.style.display = 'inline-flex';
+}
+
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = () => reject(new Error('อ่านไฟล์ไม่สำเร็จ'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function setStep(index, allDone = false) {
+  steps.forEach((s, i) => {
+    s.classList.remove('active', 'done');
+    if (allDone || i < index) s.classList.add('done');
+    else if (i === index) s.classList.add('active');
+  });
+  if (allDone) steps.forEach(s => s.classList.add('done'));
+}
+
+function showStatus(type, msg) {
+  statusEl.className = 'status show ' + type;
+  statusEl.textContent = msg;
+}
+function hideStatus() { statusEl.className = 'status'; }
+
+resetBtn.addEventListener('click', () => {
+  stopPolling();
+  clearFile();
+  dateStart.disabled = false;
+  dateEnd.disabled = false;
+  promoType.disabled = false;
+  discountPercent.disabled = false;
+  previewBox.classList.remove('show');
+  previewScroll.innerHTML = '';
+  if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = null; }
+  downloadBtn.removeAttribute('download');
+  pipeline.classList.remove('show');
+  setStep(-1);
+  hideStatus();
+  downloadBtn.style.display = 'none';
+  resetBtn.style.display = 'none';
+  uploadBtn.style.display = 'inline-flex';
+  uploadBtn.disabled = true;
+  dropzone.style.pointerEvents = '';
+});
+
+const dropzone2   = document.getElementById('dropzone2');
+const fileInput2  = document.getElementById('fileInput2');
+const fileChip2   = document.getElementById('fileChip2');
+const fileNameEl2 = document.getElementById('fileName2');
+const fileSizeEl2 = document.getElementById('fileSize2');
+const fileRemove2 = document.getElementById('fileRemove2');
+const uploadBtn2  = document.getElementById('uploadBtn2');
+const pipeline2   = document.getElementById('pipeline2');
+const statusEl2   = document.getElementById('status2');
+const downloadBtn2= document.getElementById('downloadBtn2');
+const resetBtn2   = document.getElementById('resetBtn2');
+const steps2 = [
+  document.getElementById('step1_2'),
+  document.getElementById('step2_2'),
+  document.getElementById('step3_2')
+];
+
+let selectedFile2 = null;
+let pollTimer2 = null;
+let startTime2 = null;
+let blobUrl2 = null;
+
+dropzone2.addEventListener('click', () => fileInput2.click());
+dropzone2.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput2.click(); }
+});
+fileInput2.addEventListener('change', () => {
+  if (fileInput2.files.length) setFile2(fileInput2.files[0]);
+});
+['dragover', 'dragenter'].forEach(ev =>
+  dropzone2.addEventListener(ev, e => { e.preventDefault(); dropzone2.classList.add('dragover'); })
+);
+['dragleave', 'drop'].forEach(ev =>
+  dropzone2.addEventListener(ev, e => { e.preventDefault(); dropzone2.classList.remove('dragover'); })
+);
+dropzone2.addEventListener('drop', e => {
+  if (e.dataTransfer.files.length) setFile2(e.dataTransfer.files[0]);
+});
+
+function setFile2(file) {
+  if (file.size > MAX_FILE_MB * 1024 * 1024) {
+    showStatus2('error', `ไฟล์มีขนาดเกิน ${MAX_FILE_MB} MB กรุณาเลือกไฟล์ที่เล็กกว่านี้`);
+    return;
+  }
+  selectedFile2 = file;
+  fileNameEl2.textContent = file.name;
+  fileSizeEl2.textContent = formatSize(file.size);
+  fileChip2.classList.add('show');
+  uploadBtn2.disabled = false;
+  hideStatus2();
+}
+
+fileRemove2.addEventListener('click', clearFile2);
+
+function clearFile2() {
+  selectedFile2 = null;
+  fileInput2.value = '';
+  fileChip2.classList.remove('show');
+  uploadBtn2.disabled = true;
+}
+
+uploadBtn2.addEventListener('click', async () => {
+  if (!selectedFile2) return;
+
+  uploadBtn2.disabled = true;
+  dropzone2.style.pointerEvents = 'none';
+  pipeline2.classList.add('show');
+  setStep2(0);
+  startTime2 = Date.now();
+  showStatus2('info', 'กำลังอัปโหลดไฟล์เข้าระบบ...');
+
+  try {
+    const base64 = await toBase64(selectedFile2);
+
+    const res = await fetch(SUBMIT_URL_CONFIRM, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fileName: selectedFile2.name,
+        fileContent: base64
+      })
+    });
+
+    if (!res.ok && res.status !== 202) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    if (data.status === 'success' && (data.downloadUrl || data.fileBase64)) {
+      onSuccess2(data);
+      return;
+    }
+
+    if (!data.jobId) throw new Error('ระบบไม่ได้ส่งรหัสงาน (jobId) กลับมา');
+
+    setStep2(1);
+    showStatus2('info', 'ระบบรับไฟล์แล้ว กำลังประมวลผล... (0 วินาที)');
+    startPolling2(data.jobId);
+
+  } catch (err) {
+    console.error(err);
+    onError2('ส่งไฟล์ไม่สำเร็จ: ' + err.message);
+  }
+});
+
+function startPolling2(jobId) {
+  pollTimer2 = setInterval(async () => {
+    if (Date.now() - startTime2 > POLL_TIMEOUT) {
+      stopPolling2();
+      onError2('งานใช้เวลานานเกิน 30 นาที กรุณาติดต่อผู้ดูแลระบบ');
+      return;
+    }
+    try {
+      const res = await fetch(STATUS_URL_CONFIRM, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobId: jobId })
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+
+      if (data.status === 'success' && (data.downloadUrl || data.fileBase64)) {
+        stopPolling2();
+        onSuccess2(data);
+      } else if (data.status === 'error') {
+        stopPolling2();
+        onError2('ประมวลผลไม่สำเร็จ: ' + (data.message || 'ไม่ทราบสาเหตุ'));
+      } else {
+        showStatus2('info', `ระบบกำลังประมวลผล... (${elapsedText(startTime2)})`);
+      }
+    } catch (e) {
+      console.warn('poll failed, will retry', e);
+    }
+  }, POLL_INTERVAL);
+}
+
+function stopPolling2() {
+  if (pollTimer2) { clearInterval(pollTimer2); pollTimer2 = null; }
+}
+
+const previewBox2    = document.getElementById('preview2');
+const previewScroll2 = document.getElementById('previewScroll2');
+const previewCount2  = document.getElementById('previewCount2');
+
+function onSuccess2(data) {
+  setStep2(2, true);
+  showStatus2('success', `ประมวลผลเสร็จสิ้น (ใช้เวลา ${elapsedText(startTime2)}) ไฟล์ผลลัพธ์พร้อมดาวน์โหลดแล้ว`);
+
+  const fname = data.outputFileName || 'confirm_result.xlsx';
+
+  if (data.fileBase64) {
+    try { renderPreview2(data.fileBase64); }
+    catch (e) { console.warn('แสดง preview ไม่สำเร็จ:', e); }
+
+    try {
+      if (blobUrl2) URL.revokeObjectURL(blobUrl2);
+      blobUrl2 = URL.createObjectURL(b64ToBlob(data.fileBase64));
+      downloadBtn2.href = blobUrl2;
+      downloadBtn2.download = fname;
+      downloadBtn2.removeAttribute('target');
+    } catch (e) {
+      console.warn('สร้าง blob ไม่สำเร็จ ใช้ลิงก์ SharePoint แทน:', e);
+      if (data.downloadUrl) downloadBtn2.href = data.downloadUrl;
+    }
+  } else if (data.downloadUrl) {
+    downloadBtn2.href = data.downloadUrl;
+  }
+
+  downloadBtn2.style.display = 'inline-flex';
+  resetBtn2.style.display = 'inline-flex';
+  uploadBtn2.style.display = 'none';
+}
+
+const PREVIEW2_MAX_ROWS = 15;
+const PREVIEW2_MAX_COLS = 10;
+
+function renderPreview2(base64) {
+  const wb = XLSX.read(base64, { type: 'base64' });
+  const sheetName = wb.SheetNames[0];
+  const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { header: 1, defval: '' });
+  if (!rows.length) return;
+
+  const headerRow = rows[0] || [];
+  const dataRows = rows.slice(1).filter(r => r.some(v => String(v).trim() !== ''));
+  const shownRows = dataRows.slice(0, PREVIEW2_MAX_ROWS);
+  const colCount = Math.min(headerRow.length, PREVIEW2_MAX_COLS);
+  const esc = v => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  let html = '<table><thead><tr>';
+  for (let c = 0; c < colCount; c++) html += `<th>${esc(headerRow[c])}</th>`;
+  html += '</tr></thead><tbody>';
+  shownRows.forEach(r => {
+    html += '<tr>';
+    for (let c = 0; c < colCount; c++) html += `<td>${esc(r[c])}</td>`;
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+
+  previewScroll2.innerHTML = html;
+  previewCount2.textContent = dataRows.length > PREVIEW2_MAX_ROWS
+    ? `แสดง ${PREVIEW2_MAX_ROWS} จาก ${dataRows.length} แถว`
+    : `${dataRows.length} แถว`;
+  previewBox2.classList.add('show');
+}
+
+function onError2(msg) {
+  showStatus2('error', msg + ' — กดอัปโหลดไฟล์ใหม่เพื่อลองอีกครั้ง');
+  resetBtn2.style.display = 'inline-flex';
+}
+
+function setStep2(index, allDone = false) {
+  steps2.forEach((s, i) => {
+    s.classList.remove('active', 'done');
+    if (allDone || i < index) s.classList.add('done');
+    else if (i === index) s.classList.add('active');
+  });
+  if (allDone) steps2.forEach(s => s.classList.add('done'));
+}
+
+function showStatus2(type, msg) {
+  statusEl2.className = 'status show ' + type;
+  statusEl2.textContent = msg;
+}
+function hideStatus2() { statusEl2.className = 'status'; }
+
+resetBtn2.addEventListener('click', () => {
+  stopPolling2();
+  clearFile2();
+  previewBox2.classList.remove('show');
+  previewScroll2.innerHTML = '';
+  if (blobUrl2) { URL.revokeObjectURL(blobUrl2); blobUrl2 = null; }
+  downloadBtn2.removeAttribute('download');
+  pipeline2.classList.remove('show');
+  setStep2(-1);
+  hideStatus2();
+  downloadBtn2.style.display = 'none';
+  resetBtn2.style.display = 'none';
+  uploadBtn2.style.display = 'inline-flex';
+  uploadBtn2.disabled = true;
+  dropzone2.style.pointerEvents = '';
+});
+
+(function () {
+  const tabBtnGenerate = document.getElementById('tabBtnGenerate');
+  const tabBtnConfirm  = document.getElementById('tabBtnConfirm');
+  const panelGenerate  = document.getElementById('panelGenerate');
+  const panelConfirm   = document.getElementById('panelConfirm');
+
+  function activateTab(tab) {
+    const isGen = tab === 'generate';
+    tabBtnGenerate.classList.toggle('active', isGen);
+    tabBtnConfirm.classList.toggle('active', !isGen);
+    tabBtnGenerate.setAttribute('aria-selected', String(isGen));
+    tabBtnConfirm.setAttribute('aria-selected', String(!isGen));
+    panelGenerate.style.display = isGen ? '' : 'none';
+    panelConfirm.style.display = isGen ? 'none' : '';
+  }
+
+  tabBtnGenerate.addEventListener('click', () => activateTab('generate'));
+  tabBtnConfirm.addEventListener('click', () => activateTab('confirm'));
+})();
+</script>
+</body>
+</html>
