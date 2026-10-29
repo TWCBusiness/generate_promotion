@@ -581,14 +581,30 @@
 (function () {
   const mainApp   = document.getElementById('mainApp');
   const deniedApp = document.getElementById('deniedApp');
+  const KEY = 'emp_id';
   let empId = '';
   try {
     empId = (new URLSearchParams(window.location.search).get('emp_id') || '').trim();
   } catch (e) { empId = ''; }
 
+  // เก็บไว้ในแท็บนี้ (sessionStorage) เพื่อให้กด Refresh แล้วยังเข้าใช้งานได้
+  // หลังจากซ่อน emp_id ออกจาก URL แล้ว — ปิดแท็บ = ค่าหาย ต้องเปิดผ่านลิงก์ใหม่
+  try {
+    if (empId) sessionStorage.setItem(KEY, empId);
+    else empId = (sessionStorage.getItem(KEY) || '').trim();
+  } catch (e) { /* sessionStorage ใช้ไม่ได้ — ข้ามไป */ }
+
   if (empId) {
     document.getElementById('userEmpId').textContent = empId;  // textContent: กัน XSS
     mainApp.style.display = 'flex';
+    // ซ่อน ?emp_id=... ออกจากแถบ URL (ไม่ reload หน้า)
+    try {
+      const u = new URL(window.location.href);
+      if (u.searchParams.has('emp_id')) {
+        u.searchParams.delete('emp_id');
+        history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
+      }
+    } catch (e) { /* บางเบราว์เซอร์/โหมด file:// ไม่อนุญาต — ปล่อยให้ URL เดิมอยู่ */ }
   } else {
     deniedApp.style.display = 'flex';
   }
